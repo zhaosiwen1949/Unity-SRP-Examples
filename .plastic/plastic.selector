@@ -1,0 +1,4 @@
+repository "SRP@zhaosiwen1949@cloud.cn"
+  path "/"
+    br "/main"
+    co "/main"
