@@ -48,9 +48,9 @@ public class MeshBall : MonoBehaviour
                 Quaternion.Euler(Random.value * 360.0f, Random.value * 360.0f, Random.value * 360.0f), 
                 Vector3.one * Random.Range(0.5f, 1.0f)
                 );
-            // baseColors[i] = new Vector4(Random.value, Random.value, Random.value, 1.0f);
+            baseColors[i] = new Vector4(Random.value, Random.value, Random.value, 1.0f);
             cutOffs[i] = Random.value;
-            metallics[i] = Random.value < 0.25f ? 0.0f : 1.0f;
+            metallics[i] = Random.Range(0.05f, 0.8f);
             smoothnesses[i] = Random.Range(0.05f, 0.95f);
         }
     }
@@ -67,7 +67,7 @@ public class MeshBall : MonoBehaviour
         if (block == null)
         {
             block = new MaterialPropertyBlock();
-            // block.SetVectorArray(baseColorId, baseColors);
+            block.SetVectorArray(baseColorId, baseColors);
             block.SetFloatArray(cutOffId, cutOffs);
             block.SetFloatArray(metallicId, metallics);
             block.SetFloatArray(smoothnessId, smoothnesses);
