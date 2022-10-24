@@ -16,7 +16,7 @@ MonoBehaviour:
   useInstancing: 1
   useSRPBatching: 1
   shadows:
-    maxDistance: 42.2
+    maxDistance: 11.3
     shadowDistance: 0.093
     directional:
       atlasSize: 1024
@@ -26,4 +26,4 @@ MonoBehaviour:
       cascadeRatio3: 0.327
       cascadeDistance: 0.171
       filter: 1
-      cascadeBlend: 2
+      cascadeBlend: 0

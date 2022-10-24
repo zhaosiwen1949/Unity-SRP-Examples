@@ -27,7 +27,13 @@ public class Shadows
         "_CASCADE_BLEND_DITHER"
     };
 
-private static int maxShadowedDirectionalLightCount = 4, maxCascades = 4;
+    private static string[] shadowMaskKeywords =
+    {
+        "_SHADOW_MASK_ALWAYS",
+        "_SHADOW_MASK_DISTANCE",
+    };
+
+    private static int maxShadowedDirectionalLightCount = 4, maxCascades = 4;
     
     private const string bufferName = "Shadows";
 
@@ -58,6 +64,8 @@ private static int maxShadowedDirectionalLightCount = 4, maxCascades = 4;
     private Vector4[] cascadeCullingSpheres = new Vector4[maxCascades];
     
     private Vector4[] cascadeDatas = new Vector4[maxCascades];
+
+    private bool useShadowMask;
     
     public void SetUp(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings shadowSettings)
     {
@@ -66,6 +74,7 @@ private static int maxShadowedDirectionalLightCount = 4, maxCascades = 4;
         this.settings = shadowSettings;
 
         shadowDirectionalLightCount = 0;
+        useShadowMask = false;
     }
 
     public void Render()
@@ -96,10 +105,24 @@ private static int maxShadowedDirectionalLightCount = 4, maxCascades = 4;
     {
         if (
             shadowDirectionalLightCount < maxShadowedDirectionalLightCount &&
-            light.shadows != LightShadows.None && light.shadowStrength > 0.0f &&
-            cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b)
-            )
+            light.shadows != LightShadows.None && light.shadowStrength > 0.0f
+        )
         {
+            // 判断该方向光渲染阴影时，是否启用 Baked 的 ShadowMask
+            int maskChannel = -1;
+            LightBakingOutput lightBaking = light.bakingOutput;
+            if (lightBaking.lightmapBakeType == LightmapBakeType.Mixed &&
+                lightBaking.mixedLightingMode == MixedLightingMode.Shadowmask)
+            {
+                useShadowMask = true;
+                maskChannel = lightBaking.occlusionMaskChannel;
+            }
+
+            if (!cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b))
+            {
+                return new Vector4(-light.shadowStrength, 0, 0, maskChannel);
+            }
+            
             int shadowDirectionalLightIndex = shadowDirectionalLightCount;
             shadowedDirectionalLights[shadowDirectionalLightIndex] = new ShadowedDirectionalLight
             {
@@ -110,7 +133,7 @@ private static int maxShadowedDirectionalLightCount = 4, maxCascades = 4;
 
             shadowDirectionalLightCount += 1;
             
-            return new Vector4(light.shadowStrength, shadowDirectionalLightIndex * settings.directional.cascadeCount, light.shadowNormalBias);
+            return new Vector4(light.shadowStrength, shadowDirectionalLightIndex * settings.directional.cascadeCount, light.shadowNormalBias, maskChannel);
         }
 
         return Vector4.zero;
@@ -141,6 +164,9 @@ private static int maxShadowedDirectionalLightCount = 4, maxCascades = 4;
         buffer.SetGlobalVector(shadowDistanceFadeId, new Vector4(1.0f / settings.maxDistance, 1.0f / settings.shadowDistance, 1.0f / (1.0f - cascadeDistance * cascadeDistance)));
         SetKeywords(directionalFilterKeywords, (int) settings.directional.filter - 1);
         SetKeywords(cascadeBlendKeywords, (int) settings.directional.cascadeBlend - 1);
+        SetKeywords(shadowMaskKeywords, useShadowMask ? 
+            QualitySettings.shadowmaskMode == ShadowmaskMode.Shadowmask ? 0 : 1
+            : -1);
         buffer.SetGlobalVector(shadowAtlasSizeId, new Vector4(atlasSize, 1.0f / atlasSize));
         buffer.EndSample(bufferName);
         ExecuteBuffer();

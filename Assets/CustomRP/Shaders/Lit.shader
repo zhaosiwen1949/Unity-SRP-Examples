@@ -16,6 +16,7 @@ Shader "Custom RP/Lit"
         [Toggle(_PREMULTIPLY_ALPHA)] _PremulAlpha ("Premultiply Alpha", Float) = 0.0
         _Metallic ("Metallic", Range(0.0, 1.0)) = 0.0
         _Smoothness ("Smoothness", Range(0.0, 1.0)) = 0.5
+        _Fresnel ("Fresnel", Range(0.0, 1.0)) = 0.0
         [KeywordEnum(On, Clip, Dither, Off)] _Shadow ("Shadows Mode", Float) = 0.0
         [Toggle(_RECEIVE_SHADOWS)] _ReceiveShadows("Receive Shadows", Float) = 1.0
     }
@@ -38,6 +39,8 @@ Shader "Custom RP/Lit"
             #pragma shader_feature _CLIPPING
             #pragma shader_feature _PREMULTIPLY_ALPHA
             #pragma shader_feature _RECEIVE_SHADOWS
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+            #pragma multi_compile _ _SHADOW_MASK_ALWAYS _SHADOW_MASK_DISTANCE
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
             #pragma multi_compile _ _CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
@@ -57,6 +60,7 @@ Shader "Custom RP/Lit"
             HLSLPROGRAM
             #pragma target 3.5
             #pragma shader_feature _ _SHADOW_CLIP _SHADOW_DITHER
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma multi_compile_instancing
             #pragma vertex ShadowCasterPassVertex
             #pragma fragment ShadowCasterPassFragment

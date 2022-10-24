@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: CustomLitWhite
+  m_Name: CustomLitMetalWhite
   m_Shader: {fileID: 4800000, guid: caacf9e1cfbd6714a9f8e4646bf7f852, type: 3}
   m_ValidKeywords:
   - _RECEIVE_SHADOWS
@@ -70,10 +70,11 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _Fresnel: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Metallic: 0
+    - _Metallic: 1
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
