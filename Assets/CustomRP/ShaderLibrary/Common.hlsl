@@ -19,6 +19,7 @@
 
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl"
 
 float Square(float v)
 {
@@ -37,5 +38,20 @@ void ClipLOD(float2 positionCS, float fade)
 		clip(fade + (fade > 0.0 ? -dither : dither));
 	#endif
 }
-	
+
+float3 DecodeNormal(float4 map, float scale)
+{
+	#if defined(UNITY_NO_DXT5nm)
+		return UnpackNormalRGB(map, scale);
+	#else
+		return UnpackNormalmapRGorAG(map, scale);
+	#endif
+}
+
+float3 TransformNormalTangentToWorld(float3 normalTS, float3 normalWS, float4 tangentWS)
+{
+	float3x3 tangentToWorld = CreateTangentToWorld(normalWS,tangentWS.xyz, tangentWS.w);
+	return TransformTangentToObject(normalTS, tangentToWorld);
+}
+
 #endif

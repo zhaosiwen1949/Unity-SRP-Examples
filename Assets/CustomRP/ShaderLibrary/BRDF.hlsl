@@ -18,7 +18,7 @@ float3 IndirectBRDF(Surface surface, BRDF brdf, float3 diffuse, float3 specular)
     float3 reflection = specular * lerp(brdf.specular, brdf.fresnel, fresnelStrength);
     reflection /= brdf.roughness * brdf.roughness + 1.0;
     
-    return diffuse * brdf.diffuse + reflection;
+    return surface.occlusion * (diffuse * brdf.diffuse + reflection);
 }
 
 float OneMinusReflectivity(float metallic)

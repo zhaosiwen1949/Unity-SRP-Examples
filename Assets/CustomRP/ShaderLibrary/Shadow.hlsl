@@ -121,12 +121,12 @@ float FilterDirectionalShadow(float3 positionSTS)
 
 float GetCascadedShadow(DirectionalShadowData directional, ShadowData global, Surface surfaceWS)
 {
-    float3 positionSTS = mul(_DirectionalShadowMatrices[directional.titleIndex], float4(surfaceWS.position + surfaceWS.normal * _CascadeData[global.cascadeIndex].y * directional.normalBias, 1.0)).xyz;
+    float3 positionSTS = mul(_DirectionalShadowMatrices[directional.titleIndex], float4(surfaceWS.position + surfaceWS.interpolatedNormal * _CascadeData[global.cascadeIndex].y * directional.normalBias, 1.0)).xyz;
     float shadow = FilterDirectionalShadow(positionSTS);
 
     if(global.cascadeBlend < 1.0)
     {
-        positionSTS = mul(_DirectionalShadowMatrices[directional.titleIndex + 1], float4(surfaceWS.position + surfaceWS.normal * _CascadeData[global.cascadeIndex + 1].y * directional.normalBias, 1.0)).xyz;
+        positionSTS = mul(_DirectionalShadowMatrices[directional.titleIndex + 1], float4(surfaceWS.position + surfaceWS.interpolatedNormal * _CascadeData[global.cascadeIndex + 1].y * directional.normalBias, 1.0)).xyz;
         shadow = lerp(FilterDirectionalShadow(positionSTS), shadow, global.cascadeBlend);
     }
     return shadow;
