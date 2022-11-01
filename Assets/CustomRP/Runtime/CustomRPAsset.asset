@@ -15,8 +15,9 @@ MonoBehaviour:
   useDynamicBatching: 0
   useInstancing: 1
   useSRPBatching: 1
+  useLightsPerObject: 1
   shadows:
-    maxDistance: 11.3
+    maxDistance: 50
     shadowDistance: 0.093
     directional:
       atlasSize: 1024
@@ -27,3 +28,6 @@ MonoBehaviour:
       cascadeDistance: 0.171
       filter: 1
       cascadeBlend: 0
+    other:
+      atlasSize: 4096
+      filter: 3

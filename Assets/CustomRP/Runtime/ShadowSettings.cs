@@ -65,4 +65,17 @@ public class ShadowSettings
         filter = FilterMode.PCF2x2,
         cascadeBlend = CascadeBlendMode.Hard,
     };
+    
+    [System.Serializable]
+    public struct Other
+    {
+        public TextureSize atlasSize;
+        public FilterMode filter;
+    }
+
+    public Other other = new Other()
+    {
+        atlasSize = TextureSize._1024,
+        filter = FilterMode.PCF2x2,
+    };
 }

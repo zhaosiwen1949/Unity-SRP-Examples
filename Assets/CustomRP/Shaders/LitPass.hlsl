@@ -69,7 +69,7 @@ float4 LitPassFragment(Varyings input): SV_TARGET
     float4 base = GetBase(inputConfig);
     #if defined(_CLIPPING)
         clip(base.a - GetCutOff(inputConfig));
-    #endif
+    #endif 
 
     Surface surface;
     surface.position = input.positionWS;
