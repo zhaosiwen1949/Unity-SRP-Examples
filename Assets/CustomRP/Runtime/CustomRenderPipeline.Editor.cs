@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
 using LightType = UnityEngine.LightType;
 
-public partial class CustomRenderPipeline
+partial class CustomRenderPipeline
 {
     partial void InitializeForEditor();
     

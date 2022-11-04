@@ -42,11 +42,18 @@ partial class CameraRenderer
         context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
     }
 
-    partial void DrawGizmos()
+    partial void DrawGizmosBeforeFX()
     {
         if (Handles.ShouldRenderGizmos())
         {
             context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
+        }
+    }
+    
+    partial void DrawGizmosAfterFX()
+    {
+        if (Handles.ShouldRenderGizmos())
+        {
             context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
         }
     }

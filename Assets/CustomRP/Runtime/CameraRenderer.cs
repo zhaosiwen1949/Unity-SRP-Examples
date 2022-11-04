@@ -7,6 +7,8 @@ public partial class CameraRenderer
 {
     private static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
     private static ShaderTagId litShaderTagId = new ShaderTagId("CustomLit");
+
+    private static int frameBufferId = Shader.PropertyToID("_CameraFrameBuffer");
     
     private ScriptableRenderContext context;
     private Camera camera;
@@ -20,8 +22,9 @@ public partial class CameraRenderer
 
     private CullingResults cullingResults;
     private Lighting lighting = new Lighting();
+    private PostFXStack postFXStack = new PostFXStack();
     
-    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useInstancing, bool useLightsPerObject, ShadowSettings shadowSettings)
+    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useInstancing, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings)
     {
         this.context = context;
         this.camera = camera;
@@ -36,11 +39,18 @@ public partial class CameraRenderer
         buffer.BeginSample(sampleName);
         ExecuteBuffer();
         lighting.SetUp(context, cullingResults, shadowSettings, useLightsPerObject);
+        postFXStack.SetUp(context, camera, postFXSettings);
         buffer.EndSample(sampleName);
         SetUp();
         DrawVisibleGeometry(useDynamicBatching, useInstancing, useLightsPerObject);
         DrawUnsupportedShaders();
-        DrawGizmos();
+        DrawGizmosBeforeFX();
+        DrawGizmosAfterFX();
+        if (postFXStack.isActive)
+        {
+            postFXStack.Render(frameBufferId);
+        }
+        CleanUp();
         Submit();
     }
 
@@ -59,6 +69,18 @@ public partial class CameraRenderer
     {
         context.SetupCameraProperties(camera);
         CameraClearFlags flags = camera.clearFlags;
+
+        if (flags > CameraClearFlags.Color)
+        {
+            flags = CameraClearFlags.Color;
+        }
+        
+        if (postFXStack.isActive)
+        {
+            buffer.GetTemporaryRT(frameBufferId, camera.pixelWidth, camera.pixelHeight, 32, FilterMode.Bilinear, RenderTextureFormat.Default);
+            buffer.SetRenderTarget(frameBufferId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+        }
+        
         buffer.ClearRenderTarget(
             flags <= CameraClearFlags.Depth, 
             flags <= CameraClearFlags.Color, 
@@ -101,7 +123,8 @@ public partial class CameraRenderer
     }
 
     partial void DrawUnsupportedShaders();
-    partial void DrawGizmos();
+    partial void DrawGizmosBeforeFX();
+    partial void DrawGizmosAfterFX();
     partial void PrepareForSceneWindow();
 
     partial void PrepareBuffer();
@@ -110,7 +133,6 @@ public partial class CameraRenderer
     {
         buffer.EndSample(sampleName);
         ExecuteBuffer();
-        lighting.CleanUp();
         context.Submit();
     }
 
@@ -118,5 +140,14 @@ public partial class CameraRenderer
     {
         context.ExecuteCommandBuffer(buffer);
         buffer.Clear();
+    }
+
+    void CleanUp()
+    {
+        lighting.CleanUp();
+        if (postFXStack.isActive)
+        {
+            buffer.ReleaseTemporaryRT(frameBufferId);
+        }
     }
 }

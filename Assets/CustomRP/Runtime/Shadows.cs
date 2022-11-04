@@ -244,7 +244,7 @@ public class Shadows
         buffer.ClearRenderTarget(true, false,Color.clear);
         buffer.SetGlobalFloat(shadowPancakingId, 1.0f);
         buffer.BeginSample(bufferName);
-        ExecuteBuffer();
+        ExecuteBuffer(); 
 
         int split = shadowDirectionalLightCount * settings.directional.cascadeCount <= 1 ? 1 : shadowDirectionalLightCount * settings.directional.cascadeCount <= 4 ? 2 : 4;
         int tileSize = atlasSize / split;
